@@ -6,56 +6,68 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
+class Register(Base):
+    __tablename__ = 'register'
+    ID = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    username = Column(String(250), nullable=False)
+    email = Column(String(250), nullable = False)
+    password = Column(String(250), nullable = False)
+
+
 class User(Base):
     __tablename__ = 'user'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
     ID = Column(Integer, primary_key=True)
-    username = Column(String(250), nullable=False)
-    follower_ID = Column(Integer, ForeignKey('follower.ID'))
-    email = Column(String(250), nullable = False)
+    Register_ID = Column(Integer, ForeignKey('register.ID'))
 
-    # def __init__(self, name):
-    #     if not name 
+
+class FollowRequest(Base):
+    __tablename__ = 'follow_request'
+    ID = Column(Integer, primary_key=True)
+    user_from_ID = Column(Integer, ForeignKey('user.ID'))
+    user_to_ID = Column(Integer, ForeignKey('user.ID'))
+    accepted = Column(Boolean, default=False)
+
+class Follower(Base):
+    __tablename__ = 'follower'
+    ID = Column(Integer, primary_key=True)
+    user_from_ID = Column(Integer, ForeignKey('user.ID'))
+    user_to_ID = Column(Integer, ForeignKey('user.ID'))
+
+class Post(Base):
+    __tablename__ = 'post'
+    ID = Column(Integer, primary_key=True)
+    user_ID = Column(Integer, ForeignKey('user.ID'))
+
+class Media(Base):
+    __tablename__ = 'media'
+    ID = Column(Integer, primary_key=True)
+    post_ID = Column(Integer, ForeignKey('post.ID'))
+    type = Column(String(500))
+    url = Column(String(250))
+    
 class Comment(Base):
     __tablename__ = 'comment'
     ID = Column(Integer, primary_key=True)
     Comment_text = Column(String(500), nullable=False)
-    user_ID = Column(Integer, ForeignKey('user.ID'))
-    post_ID = Column(Integer, ForeignKey('post.ID'))
+    author_ID = Column(Integer, ForeignKey('user.ID'))
+    post_ID = Column(Integer, ForeignKey('post.ID'))    
+    like = Column(Boolean, nullable=False)
+    dislike = Column(Boolean, nullable=False)
 
 class CommentLike(Base):
     __tablename__ = 'comment_like'
     ID = Column(Integer, primary_key=True)
     Comment_ID = Column(Integer, ForeignKey('comment.ID'))
-    like = Column(Boolean, nullable=False)
     count = Column(Integer)
 
 class CommentDisLike(Base):
     __tablename__ = 'comment_dislike'
     ID = Column(Integer, primary_key=True)
     Comment_ID = Column(Integer, ForeignKey('comment.ID'))
-    like = Column(Boolean, nullable=False)
     count = Column(Integer)
 
-class FollowerRequest(Base):
-    __tablename__ = 'follow_request'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
-    ID = Column(Integer, primary_key=True)
-    follwer_ID = Column(Integer, ForeignKey('user.ID'))
-    follwed_ID = Column(Integer, ForeignKey('user.ID'))
-    accepted = Column(Boolean, nullable=False)
-
-class Post(Base):
-    __tablename__ = 'post'
-    ID = Column(Integer, primary_key=True)
-    Post = Column(String(500))
-    user_ID = Column(Integer, ForeignKey('user.ID'))
-    comment_ID = Column(Integer, ForeignKey('comment.ID'))
-
-
-class Like(Base):
+class PostLike(Base):
     __tablename__ = 'like'
     ID = Column(Integer, primary_key=True)
     post_ID = Column(Integer, ForeignKey('post.ID'))
@@ -63,11 +75,11 @@ class Like(Base):
     count = Column(Integer)
 
 
-class DisLike(Base):
+class PostDisLike(Base):
     __tablename__ = 'dislike'
     ID = Column(Integer, primary_key=True)
-    post_ID = Column(Integer, ForeignKey('post.ID'))
-    like = Column(Boolean, nullable=False)
+    post_ID = Column(Integer, ForeignKey('post.ID')) 
+    dislike = Column(Boolean, nullable=False)   
     count = Column(Integer)
 
     def to_dict(self):
